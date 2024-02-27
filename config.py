@@ -7,6 +7,7 @@ class Settings(BaseSettings):
     database_username:str
     secret_key:str
     algorithm:str
+    database_port:str
     class Config:
         env_file=".env"
     
