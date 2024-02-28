@@ -8,7 +8,7 @@ from typing import List
 
 
 from connection import websocket_connections,websocket_connections_admin
-import websockets
+
 
 
 from sqlalchemy import select
