@@ -1,6 +1,6 @@
 from fastapi import FastAPI,Depends,HTTPException
 from fastapi.params import Body
-from pydantic import BaseModel
+
 
 from fastapi.middleware.cors import CORSMiddleware
 from database import engine, SessionLocal

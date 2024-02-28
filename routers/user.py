@@ -1,18 +1,17 @@
-from fastapi import FastAPI,Depends,HTTPException,APIRouter,WebSocket,status,Header
+from fastapi import FastAPI,Depends,HTTPException,APIRouter,status,Header
 from sqlalchemy.orm import Session
 from database import get_db
 import models,schemas,oauth2
 from sqlalchemy.exc import IntegrityError
 from utils import pwd_context
 from typing import List
-from fastapi.responses import HTMLResponse
-import socketio
+
+
 from connection import websocket_connections,websocket_connections_admin
 import websockets
-import asyncio
-from datetime import datetime, timedelta
+
+
 from sqlalchemy import select
-from sqlalchemy.ext.asyncio import AsyncSession
 
 
 

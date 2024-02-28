@@ -4,9 +4,9 @@ import schemas,database,models
 from fastapi import Depends,status,HTTPException
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.orm import Session
-from sqlalchemy.ext.asyncio import AsyncSession
+
 from typing import Dict,Any
-from jose import ExpiredSignatureError
+
 from sqlalchemy import select
 from config import settings
 oauth2_scheme= OAuth2PasswordBearer(tokenUrl='login_admin')

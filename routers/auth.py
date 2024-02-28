@@ -2,11 +2,11 @@ from fastapi import FastAPI,Depends,HTTPException,APIRouter,status,WebSocket,Hea
 from sqlalchemy.orm import Session
 from sqlalchemy import update,select
 import database, schemas, models,utils,oauth2
-import websockets
+
 from connection import websocket_connections,websocket_connections_admin
-import asyncio
-from datetime import datetime, timedelta
-from sqlalchemy.ext.asyncio import AsyncSession
+
+
+
 from jose import JWTError,jwt
 router=APIRouter(tags=['Authentication'])
 

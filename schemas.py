@@ -1,7 +1,7 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
 from typing import Optional,List
-from fastapi import UploadFile,File,Form
+
 class PostBase(BaseModel):
     name:str
     price:int
