@@ -8,6 +8,7 @@ from connection import websocket_connections,websocket_connections_admin
 
 
 from jose import JWTError,jwt
+user_dict={}
 router=APIRouter(tags=['Authentication'])
 
 
@@ -65,9 +66,10 @@ async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Se
            websocket_connections.add(websocket)
       data = await websocket.receive_text()
       token = data.strip()
-      print("length",len(websocket_connections),len(websocket_connections_admin))
-      await user_active(token=token,db=db,active=True)
+      print("origin",str(origin))
+      
       if str(origin)!="http://localhost:3000":
+            await user_active(token=token,db=db,active=True)
             await admin_signal()
       
       try:
@@ -85,8 +87,9 @@ async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Se
                     print(origin,"closed")
                     
             # Iterate over connected WebSocket clients and send a message
-                    await user_active(token=token,db=db,active=False)
-                    await admin_signal()
+                    if str(origin)!="http://localhost:3000":
+                        await user_active(token=token,db=db,active=False)
+                        await admin_signal()
                     break
       except Exception as e:
            print("error",e)
@@ -121,9 +124,10 @@ async def login_user(
 ):
     print(str(origin))
     print(str(origin) != "http://localhost:3000")
-
+   
     user_query = db.query(models.User).filter(models.User.email == user_cred.email)
     user = user_query.first()
+   
 
     if not user:
         return  HTTPException(
@@ -134,7 +138,11 @@ async def login_user(
         return HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"Invalid credentials"
         )
- 
+    if user.id not in user_dict:
+       user_dict[user.id]=1
+    else:
+           user_dict[user.id]+=1
+    print(user_dict)
     user_query.update({"login_status": True}, synchronize_session=False)
     db.commit()
     
@@ -159,17 +167,23 @@ async def login_user(
 
 @router.get("/logout_user")
 async def logout_user(db: Session = Depends(database.get_db),current_user:dict=Depends(oauth2.get_current_user),origin: str = Header(None)):
+   
     user_id=dict(current_user["token_data"])["id"]
+    if user_dict[user_id]==1:
+        user_query=db.query(models.User).filter(models.User.id==user_id)
+        user_query.update({"login_status":False}, synchronize_session=False)
+        db.commit()
+        
+       
+        del user_dict[user_id]
     
-    user_query=db.query(models.User).filter(models.User.id==user_id)
-    user_query.update({"login_status":False}, synchronize_session=False)
-    db.commit()
+    else:
+          
+           user_dict[user_id]-=1
     
     if str(origin)!="http://localhost:3000":
 
-        await admin_signal()
-    
-    
+            await admin_signal()
     
     return {"status":"ok"}
 

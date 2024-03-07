@@ -36,7 +36,7 @@ async def get_all_users(db:Session = Depends(get_db),current_user:dict=Depends(o
     if dict(current_user["token_data"])["role"]!="admin":
       raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"only admin have access")
     print(str(origin)!="http://localhost:3000")
-    if str(origin)!="http://localhost:3000":
+    if str(origin)=="http://localhost:3001":
       for client in websocket_connections_admin:
           try:
               await client.send_text("item added")
