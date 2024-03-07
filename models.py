@@ -10,7 +10,7 @@ class Shoes(Base):
     name=Column(String,nullable=False)
     price=Column(Integer,nullable=False)
     shoes_type=Column(String,nullable=False)
-    product_image=Column(Text,nullable=False)
+    product_image=Column(String,nullable=False)
     shoes_category=Column(String,nullable=False)
     created_at=Column(TIMESTAMP(timezone=True),nullable=False,server_default=text('now()'))
     

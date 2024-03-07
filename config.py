@@ -8,6 +8,7 @@ class Settings(BaseSettings):
     secret_key:str
     algorithm:str
     database_port:str
+    aws_secret_key:str
     class Config:
         env_file=".env"
     

@@ -1,5 +1,6 @@
 from pydantic import BaseModel, EmailStr
 from datetime import datetime
+from fastapi import UploadFile,File,Form
 from typing import Optional,List
 
 class PostBase(BaseModel):
@@ -7,11 +8,14 @@ class PostBase(BaseModel):
     price:int
     
 class ShoesCreate(BaseModel):
-    name: str
-    price: int 
+    
+    name:str
+    price:int
     product_image:str
-    shoes_type:str
     shoes_category:str
+    shoes_type:str
+
+   
     
     
 class CartBase(BaseModel):

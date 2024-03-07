@@ -18,8 +18,8 @@ branch_labels: Union[str, Sequence[str], None] = None
 depends_on: Union[str, Sequence[str], None] = None
 
 
-def upgrade() -> None:
-    pass
+def upgrade():
+    op.alter_column("shoes","product_image",type_=sa.String())
 
 
 def downgrade() -> None:
