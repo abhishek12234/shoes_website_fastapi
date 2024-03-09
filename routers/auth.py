@@ -2,13 +2,14 @@ from fastapi import FastAPI,Depends,HTTPException,APIRouter,status,WebSocket,Hea
 from sqlalchemy.orm import Session
 from sqlalchemy import update,select
 import database, schemas, models,utils,oauth2
-
+from typing import Dict
 from connection import websocket_connections,websocket_connections_admin
 
 
 
 from jose import JWTError,jwt
 user_dict={}
+websocket_connections_per_user: Dict[int, set] = {}
 router=APIRouter(tags=['Authentication'])
 
 
@@ -20,22 +21,30 @@ router=APIRouter(tags=['Authentication'])
 SECREAT_KEY = "0dca03efgds"
 ALGORITHM = "HS256"
 
-async def user_active(token:str,db:Session,active:bool):
+async def user_active(id:str,role:str,db:Session,active:bool):
       print(active,"------------------")
       
       
       try:
-        payload=jwt.decode(token, SECREAT_KEY, algorithms=[ALGORITHM])
-        id,role=payload.get("user_id"),payload.get("role")
+       
+        
+                  
+                  
+        
         if id is None or role is None:
                 raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,detail=f"Could not validate credential")
         user_query = db.query(models.User).filter(models.User.id == id)
         user = user_query.first()
         print("Before update")
+       
         user_query.update({"online_status": active}, synchronize_session=False)
-        print("after update")
         db.commit()
+         
+               
+        print("after update")
+        
         print("commit update")
+       
         
         
              
@@ -66,11 +75,18 @@ async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Se
            websocket_connections.add(websocket)
       data = await websocket.receive_text()
       token = data.strip()
-      print("origin",str(origin))
+      payload=jwt.decode(token, SECREAT_KEY, algorithms=[ALGORITHM])
+      id,role=payload.get("user_id"),payload.get("role")
+      if origin!="http://localhost:3000":
+        if id not in websocket_connections_per_user:
+                websocket_connections_per_user[id] = set()
+        websocket_connections_per_user[id].add(websocket)
+        print("origin",websocket_connections_per_user)
       
       if str(origin)!="http://localhost:3000":
-            await user_active(token=token,db=db,active=True)
+            await user_active(id=id,role=role,db=db,active=True)
             await admin_signal()
+            
       
       try:
         while True:
@@ -85,21 +101,30 @@ async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Se
                     print(e)
                         
                     print(origin,"closed")
+                    if str(origin)!="http://localhost:3000":
+                        print(websocket_connections_per_user)
+                        if websocket in websocket_connections_per_user.get(id, set()):
+                            websocket_connections_per_user[id].remove(websocket)
+                            if not websocket_connections_per_user[id]:
+                                print("enter in")
+                                await user_active(id=id,role=role, db=db, active=False)
+                                await admin_signal()
+                        print(websocket_connections_per_user)
                     
             # Iterate over connected WebSocket clients and send a message
-                    if str(origin)!="http://localhost:3000":
-                        await user_active(token=token,db=db,active=False)
-                        await admin_signal()
+                    print("newpoint")
                     break
       except Exception as e:
            print("error",e)
+          
            pass
       finally:
+           print("connection finnaly closed")
            if origin=="http://localhost:3000":
                             websocket_connections_admin.remove(websocket)
            else:
                             websocket_connections.remove(websocket)
-           
+           print(websocket not in websocket_connections)
         
 @router.post("/login_admin")
 def login_admin(admin_cred: schemas.AdminLogin,db: Session = Depends(database.get_db)):
@@ -169,20 +194,17 @@ async def login_user(
 async def logout_user(db: Session = Depends(database.get_db),current_user:dict=Depends(oauth2.get_current_user),origin: str = Header(None)):
    
     user_id=dict(current_user["token_data"])["id"]
-    if user_dict[user_id]==1:
-        user_query=db.query(models.User).filter(models.User.id==user_id)
-        user_query.update({"login_status":False}, synchronize_session=False)
-        db.commit()
+    
+    user_query=db.query(models.User).filter(models.User.id==user_id)
+    user_query.update({"login_status":False}, synchronize_session=False)
+       
+    db.commit()
         
        
-        del user_dict[user_id]
-    
-    else:
-          
-           user_dict[user_id]-=1
+       
     
     if str(origin)!="http://localhost:3000":
-
+            
             await admin_signal()
     
     return {"status":"ok"}
