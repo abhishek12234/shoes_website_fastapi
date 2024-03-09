@@ -71,6 +71,18 @@ def read(db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_curre
     
 
     return shoes_list
+@router.get("/new_shoes", response_model=List[schemas.Shoes])
+def read(db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+     
+     
+    shoes_list = db.query(models.Shoes).filter(models.Shoes.shoes_type=="New").all()
+
+   
+    # Prepare a dictionary with all the required fields
+    
+    
+
+    return shoes_list
 
 @router.post("/createshoesimagelink")
 async def create_post(file:UploadFile=File(...), db: Session = Depends(get_db)):
