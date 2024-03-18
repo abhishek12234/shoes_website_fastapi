@@ -64,12 +64,14 @@ async def create_post(users:schemas.UserCreate,db: Session= Depends(get_db),orig
             await admin_signal()
         return new_user
     
-    
+   
     except IntegrityError as e:
         # Handle the unique constraint violation error
           # Rollback the transaction to avoid database changes
         db.rollback()  # Rollback the transaction to avoid database changes
         raise HTTPException(status_code=400, detail="Unique constraint violation: User with the same unique field already exists.")
+    
+
 @router.get("/delete_user/{id}")
 def read(id:int,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
 
@@ -82,3 +84,17 @@ def read(id:int,db: Session = Depends(get_db),current_user:int=Depends(oauth2.ge
     user_query.delete(synchronize_session=False)
     db.commit()
     return {"message":"deleted"} 
+@router.post("/add_address")
+def address(address:schemas.AddAddress,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+
+    id=dict(current_user["token_data"])["id"] 
+    user_query=db.query(models.User).filter(models.User.id==id)
+    user=user_query.first()
+
+    if user==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
+    
+    user_query.update({"user_address":address.user_address},synchronize_session=False)
+        
+    db.commit()
+    return {"message":"address updates"} 
