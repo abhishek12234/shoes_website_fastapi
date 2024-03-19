@@ -89,7 +89,15 @@ class UserInfo(BaseModel):
     created_at:datetime
     class Config:
         from_attributes=True
+class CurrentUserInfo(BaseModel):
     
+    user_name:str
+    email:EmailStr
+    user_address:str
+    user_phone_no:str 
+   
+    class Config:
+        from_attributes=True 
 class Active(BaseModel):
     active_status:str
 

@@ -28,6 +28,7 @@ class User(Base):
     total_quantity=Column(Integer,nullable=False,server_default=text('0'))
     total_purchase=Column(Integer,nullable=False,server_default=text('0'))
     user_address=Column(String,nullable=False,server_default=text('None'))
+    user_phone_no=Column(String,nullable=False,server_default=text(''))
 class Admin(Base):
     __tablename__="admin"
     id=Column(Integer,primary_key=True,nullable=False)

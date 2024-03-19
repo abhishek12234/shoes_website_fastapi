@@ -98,3 +98,17 @@ def address(address:schemas.AddAddress,db: Session = Depends(get_db),current_use
         
     db.commit()
     return {"message":"address updates"} 
+@router.get("/current_user_info",response_model=schemas.CurrentUserInfo)
+def address(db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+
+    id=dict(current_user["token_data"])["id"] 
+    user_query=db.query(models.User).filter(models.User.id==id)
+    user=user_query.first()
+
+    if user==None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
+    
+    
+        
+    
+    return user
