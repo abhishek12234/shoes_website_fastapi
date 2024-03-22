@@ -13,6 +13,11 @@ router=APIRouter()
 def add_shoes_to_cart(db: Session = Depends(get_db),current_user:dict=Depends(oauth2.get_current_user)):
     orders=db.query(models.Orders).all()
     return orders
+@router.get("/current_user_all_order")
+def add_shoes_to_cart(db: Session = Depends(get_db),current_user:dict=Depends(oauth2.get_current_user)):
+    id=dict(current_user["token_data"])["id"]
+    orders=db.query(models.Orders).filter(models.Orders.owner_id==id).all()
+    return orders
 @router.post("/add_order")
 def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current_user:dict=Depends(oauth2.get_current_user)):
     id=dict(current_user["token_data"])["id"]
@@ -61,3 +66,4 @@ def update_status(id:int,order_status:schemas.status_update,db: Session = Depend
     order_query.update(order_status.dict(),synchronize_session=False)
     db.commit()
     return {"data":"sucess"}
+
