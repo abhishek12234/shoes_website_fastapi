@@ -31,9 +31,11 @@ def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current_user:
         order_item.payment = order.payment 
         order_item.shipping_method = order.shipping_method
         order_item.owner_id=id
+        order_item.owner_name=user_email.user_name
         order_item.owner_email = user_email.email   # Set additional attribute
         
         db.add(order_item)
+    db.query(models.Cart).filter(models.Cart.owner_id==id).delete(synchronize_session=False)
    
    
     db.commit()
