@@ -27,12 +27,14 @@ class CartBase(BaseModel):
 class OrderAdd(BaseModel):
     
     
-    product_name:str
+   
 
     
-    price:int
+   
    
     payment:str
+    user_address:str
+    shipping_method:str
     
 class status_update(BaseModel):
     order_status:str

@@ -17,7 +17,7 @@ def add_item_cart(shoes_id:schemas.CartAdd,db: Session = Depends(get_db),current
     shoes=db.query(models.Shoes).filter(models.Shoes.id==shoes_id.id).first()
     print(user_email.email)
     cart_all=db.query(models.Cart).filter(models.Cart.owner_email==user_email.email).all()
-    new_item=models.Cart(owner_email=user_email.email,product_image=shoes.product_image,price=shoes.price,product_name=shoes.name, shoes_category=shoes.shoes_category)
+    new_item=models.Cart(owner_email=user_email.email,owner_id=id,product_image=shoes.product_image,price=shoes.price,product_name=shoes.name, shoes_category=shoes.shoes_category)
     
     try:
         db.add(new_item)

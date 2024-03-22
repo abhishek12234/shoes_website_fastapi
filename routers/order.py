@@ -17,11 +17,27 @@ def add_shoes_to_cart(db: Session = Depends(get_db),current_user:dict=Depends(oa
 def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current_user:dict=Depends(oauth2.get_current_user)):
     id=dict(current_user["token_data"])["id"]
     user_email=db.query(models.User).filter(models.User.id==id).first()
-    new_order=models.Orders(owner_email=user_email.email,**order.dict())
-    print(vars(new_order))
-    db.add(new_order)
+    cart_items=db.query(models.Cart).filter(models.Cart.owner_id==id).all()
+    for cart_item in cart_items:
+        # Create an order item with data from the cart item
+        order_item = models.Orders()
+        for column in models.Orders.__table__.columns:
+            if hasattr(cart_item, column.name):
+                setattr(order_item, column.name, getattr(cart_item, column.name))
+        
+        # Manually set additional attributes for the order item
+         # Set the order ID for the order item
+        order_item.user_address = order.user_address
+        order_item.payment = order.payment 
+        order_item.shipping_method = order.shipping_method
+        order_item.owner_id=id
+        order_item.owner_email = user_email.email   # Set additional attribute
+        
+        db.add(order_item)
+   
+   
     db.commit()
-    db.refresh(new_order)
+    
     
     return {"status":"ok"}
 @router.get("/delete_order/{id}")
