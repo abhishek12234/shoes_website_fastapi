@@ -15,7 +15,13 @@ class ShoesCreate(BaseModel):
     shoes_category:str
     shoes_type:str
 
-   
+class ShoesUpdate(BaseModel):
+    
+    name:str
+    price:int
+    
+    shoes_category:str
+    shoes_type:str
     
     
 class CartBase(BaseModel):

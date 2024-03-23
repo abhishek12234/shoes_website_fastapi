@@ -110,7 +110,7 @@ async def create_shoes(shoes:schemas.ShoesCreate,db: Session = Depends(get_db),c
 
 
 @router.put("/updateshoes/{id}")
-def update_shoes(id:int,post:schemas.ShoesCreate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
     shoes_query=db.query(models.Shoes).filter(models.Shoes.id==id)
     shoes=shoes_query.first()
     if shoes==None:
