@@ -56,6 +56,7 @@ class Orders(Base):
 class Cart(Base):
     __tablename__="cart"
     order_id=Column(Integer,primary_key=True,nullable=False)
+    product_id=Column(Integer,ForeignKey("shoes.id",ondelete="CASCADE"),nullable=False)
     owner_id=Column(Integer,ForeignKey("users.id",ondelete="CASCADE"),nullable=False)
     owner_email=Column(String,nullable=False)
     product_name=Column(String,nullable=False)
