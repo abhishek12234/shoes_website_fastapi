@@ -135,7 +135,8 @@ async def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get
     shoes=shoes_query.first()
     if shoes==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
-    cart_query.update(product_name=post.name,synchronize_session=False)
+    if cart_query!=None:
+        cart_query.update(product_name=post.name,synchronize_session=False)
     shoes_query.update(post.dict(),synchronize_session=False)
 
     db.commit()
