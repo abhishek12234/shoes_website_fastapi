@@ -63,6 +63,7 @@ async def admin_signal():
                                             print("Error",e)
                                             pass
        return
+
       
 @router.websocket("/ws1")
 async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Session = Depends(database.get_db)):

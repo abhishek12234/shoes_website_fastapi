@@ -1,10 +1,11 @@
-from fastapi import FastAPI,Depends,HTTPException,APIRouter,status,UploadFile,File
+from fastapi import FastAPI,Depends,HTTPException,APIRouter,status,UploadFile,File,Header
 from sqlalchemy.orm import Session
 from database import get_db
 import models,schemas,oauth2
 from config import settings
 from typing import List, Optional
 import base64
+from connection import websocket_connections,websocket_connections_admin
 
 import boto3
 AWS_ACCESS_KEY = "AKIAVRUVPPBZ74UNU3OZ"  # Replace with the actual Access Key ID
@@ -17,7 +18,17 @@ s3 = boto3.client('s3', aws_access_key_id=AWS_ACCESS_KEY, aws_secret_access_key=
 
 router=APIRouter()
 s3_bucket_name="abhishek-jain-786"
-
+async def client_signal():
+       for client in websocket_connections:
+                            try:
+                                
+                                    await client.send_text("user login")
+                                    
+                            except Exception as e:
+                    # Handle disconnected clients if needed
+                                            print("Error",e)
+                                            pass
+       return
 @router.post("/add_shoes_image",response_model=schemas.Shoes)
 def add_shoes_image(file:UploadFile,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
     #posts=db.execute(text("SELECT * FROM POSTS WHERE id=:id"),{"id":id})
@@ -35,7 +46,7 @@ def test_post(id:int,db: Session = Depends(get_db),current_user:int=Depends(oaut
     return posts
 
 @router.get("/delete_shoes/{id}")
-def read(id:int,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+async def read(id:int,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user),origin: str = Header(None)):
 
     
     post_query=db.query(models.Shoes).filter(models.Shoes.id==id)
@@ -45,6 +56,10 @@ def read(id:int,db: Session = Depends(get_db),current_user:int=Depends(oauth2.ge
     
     post_query.delete(synchronize_session=False)
     db.commit()
+    if str(origin)=="http://localhost:3000":
+        # Iterate over connected WebSocket clients and send a message
+        
+        await client_signal()
     return {"message":"deleted"}
 
 @router.get("/shoes", response_model=List[schemas.Shoes])
@@ -98,19 +113,23 @@ async def create_post(file:UploadFile=File(...), db: Session = Depends(get_db)):
     
     return file_url
 @router.post("/createshoes")
-async def create_shoes(shoes:schemas.ShoesCreate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+async def create_shoes(shoes:schemas.ShoesCreate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user),origin: str = Header(None)):
     new_shoes=models.Shoes(**shoes.dict())
 
     db.add(new_shoes)
     
     db.commit()
     db.refresh(new_shoes)
+    if str(origin)=="http://localhost:3000":
+        # Iterate over connected WebSocket clients and send a message
+        
+        await client_signal()
     return new_shoes
   
 
 
 @router.put("/updateshoes/{id}")
-def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
+async def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user),origin: str = Header(None)):
     shoes_query=db.query(models.Shoes).filter(models.Shoes.id==id)
     cart_query=db.query(models.Cart).filter(models.Cart.product_id==id)
     shoes=shoes_query.first()
@@ -118,5 +137,10 @@ def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get_db),c
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
     cart_query.update(product_name=post.name,synchronize_session=False)
     shoes_query.update(post.dict(),synchronize_session=False)
+
     db.commit()
+    if str(origin)=="http://localhost:3000":
+        # Iterate over connected WebSocket clients and send a message
+        await client_signal()
+
     return {"data":"sucess"}
