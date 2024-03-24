@@ -112,9 +112,11 @@ async def create_shoes(shoes:schemas.ShoesCreate,db: Session = Depends(get_db),c
 @router.put("/updateshoes/{id}")
 def update_shoes(id:int,post:schemas.ShoesUpdate,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user)):
     shoes_query=db.query(models.Shoes).filter(models.Shoes.id==id)
+    cart_query=db.query(models.Cart).filter(models.Cart.product_id==id)
     shoes=shoes_query.first()
     if shoes==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
+    cart_query.update(product_name=post.name,synchronize_session=False)
     shoes_query.update(post.dict(),synchronize_session=False)
     db.commit()
     return {"data":"sucess"}
