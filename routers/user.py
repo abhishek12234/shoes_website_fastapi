@@ -123,7 +123,7 @@ def address(name:schemas.AddName,db: Session = Depends(get_db),current_user:int=
     if user==None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
     
-    user_query.update({"user_phone_no":name.user_name},synchronize_session=False)
+    user_query.update({"user_name":name.user_name},synchronize_session=False)
         
     db.commit()
     return {"message":"name updates"} 
