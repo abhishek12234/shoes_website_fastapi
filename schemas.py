@@ -65,6 +65,14 @@ class CartIncresase(BaseModel):
 class AddAddress(BaseModel):
     
     user_address:str 
+class AddNumber(BaseModel):
+    
+    user_phone_no:str 
+
+class AddName(BaseModel):
+    
+    user_name:str 
+    
 class ProductSize(BaseModel):
     product_name:str
     size:int 
