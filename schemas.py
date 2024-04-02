@@ -22,6 +22,8 @@ class ShoesUpdate(BaseModel):
     
     shoes_category:str
     shoes_type:str
+    shoes_stock:int
+    shoes_description:str
     
     
 class CartBase(BaseModel):

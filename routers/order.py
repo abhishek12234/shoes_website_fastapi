@@ -73,7 +73,7 @@ async def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current
         await admin_signal()
     
     
-    return {"status":"ok"}
+    return order_item
 @router.get("/delete_order/{id}")
 def delete_order(id:int,db: Session = Depends(get_db),current_user:dict=Depends(oauth2.get_current_user)):
      order_query=db.query(models.Orders).filter(models.Orders.order_id==id)
