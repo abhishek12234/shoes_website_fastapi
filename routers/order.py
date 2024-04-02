@@ -57,7 +57,8 @@ async def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current
         # Manually set additional attributes for the order item
          # Set the order ID for the order item
         shoes_stock=db.query(models.Shoes).filter(models.Shoes.id==cart_item.product_id).first().shoes_stock
-        db.query(models.Shoes).filter(models.Shoes.id==cart_item.product_id).update({"shoes_stock":shoes_stock-cart_item.product_quantity},synchronize_session=False)
+        if shoes_stock>=cart_item.product_quantity:
+            db.query(models.Shoes).filter(models.Shoes.id==cart_item.product_id).update({"shoes_stock":shoes_stock-cart_item.product_quantity},synchronize_session=False)
         
         order_item.user_address = order.user_address
         order_item.payment = order.payment 

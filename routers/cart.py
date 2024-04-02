@@ -43,9 +43,14 @@ def increase_item_cart(cart_increase:schemas.CartIncresase,db: Session = Depends
         id=dict(current_user["token_data"])["id"] 
         user_email=db.query(models.User).filter(models.User.id==id).first()
         cart_all=db.query(models.Cart).filter(models.Cart.owner_email==user_email.email, models.Cart.product_name==cart_increase.product_name)
+        shoes_stock=db.query(models.Shoes).filter(models.Shoes.name==cart_increase.product_name).first().shoes_stock
+      
         if cart_all.first()==None:
           raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"post with id:{id} not found")
         cart_value=cart_all.first().product_quantity
+        if shoes_stock<=cart_value:
+             return {"status":"not in stock"}
+             
 
         cart_all.update({"product_quantity":cart_value+1},synchronize_session=False)
         db.commit()
