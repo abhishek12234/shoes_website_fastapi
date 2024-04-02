@@ -46,6 +46,7 @@ async def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current
     id=dict(current_user["token_data"])["id"]
     user_email=db.query(models.User).filter(models.User.id==id).first()
     cart_items=db.query(models.Cart).filter(models.Cart.owner_id==id).all()
+    products=db.query(models.Shoes).all()
     for cart_item in cart_items:
         # Create an order item with data from the cart item
         order_item = models.Orders()
@@ -55,6 +56,9 @@ async def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current
         
         # Manually set additional attributes for the order item
          # Set the order ID for the order item
+        shoes_stock=db.query(models.Shoes).filter(models.Shoes.id==cart_item.product_id).first().shoes_stock
+        db.query(models.Shoes).filter(models.Shoes.id==cart_item.product_id).update({"shoes_stock":shoes_stock-cart_item.product_quantity},synchronize_session=False)
+        
         order_item.user_address = order.user_address
         order_item.payment = order.payment 
         order_item.shipping_method = order.shipping_method

@@ -87,6 +87,8 @@ class Shoes(BaseModel):
     shoes_type:str
     shoes_category:str
     id:int
+    shoes_stock:int
+    shoes_description:str
     
    
 
