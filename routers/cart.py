@@ -5,7 +5,7 @@ import models,schemas,oauth2
 from sqlalchemy.exc import IntegrityError
 from connection import websocket_connections,websocket_connections_admin
 
-from typing import List, Optional
+from typing import List, Optional,Union
 
 router=APIRouter()
 async def admin_signal():
@@ -32,7 +32,7 @@ async def client_signal():
                                             pass
        return
 
-@router.post("/add_item_cart",response_model=schemas.CartOut)
+@router.post("/add_item_cart",response_model=Union[schemas.CartOut, schemas.OutOfStockMessage])
 async def add_item_cart(shoes_id:schemas.CartAdd,db: Session = Depends(get_db),current_user:int=Depends(oauth2.get_current_user),origin: str = Header(None)):
     id=dict(current_user["token_data"])["id"]
     print(current_user["token_data"])
@@ -41,15 +41,18 @@ async def add_item_cart(shoes_id:schemas.CartAdd,db: Session = Depends(get_db),c
     print(user_email.email)
     cart_all=db.query(models.Cart).filter(models.Cart.owner_email==user_email.email).all()
     new_item=models.Cart(product_id=shoes.id,owner_email=user_email.email,owner_id=id,product_image=shoes.product_image,price=shoes.price,product_name=shoes.name, shoes_category=shoes.shoes_category)
-    
+    shoes_stock=db.query(models.Shoes).filter(models.Shoes.id==shoes_id.id).first().shoes_stock
     try:
-        db.add(new_item)
-        db.commit()
-        db.refresh(new_item)
-        if str(origin)=="http://localhost:3001":
-         # Iterate over connected WebSocket clients and send a message
-         await client_signal()
-        return new_item
+        if shoes_stock!=0:
+                db.add(new_item)
+                db.commit()
+                db.refresh(new_item)
+                if str(origin)=="http://localhost:3001":
+                # Iterate over connected WebSocket clients and send a message
+                   await client_signal()
+                return new_item
+        else:
+               return {"status":"out of stock"}
     except IntegrityError as e:
         db.rollback()
         

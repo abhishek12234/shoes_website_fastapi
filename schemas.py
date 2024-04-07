@@ -62,6 +62,10 @@ class CartOut(BaseModel):
     shoes_category:str
     class Config:
         from_attributes=True
+class OutOfStockMessage(BaseModel):
+    status: str
+    class Config:
+        from_attributes=True
 class CartIncresase(BaseModel):
     
     product_name:str
