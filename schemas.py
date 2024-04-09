@@ -86,6 +86,8 @@ class ProductSize(BaseModel):
     size:int 
 class CartAdd(BaseModel):
     id: int
+    product_quantity:int
+    size:int
 class Shoes(BaseModel):
     name:str
     price:int

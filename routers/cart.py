@@ -40,7 +40,7 @@ async def add_item_cart(shoes_id:schemas.CartAdd,db: Session = Depends(get_db),c
     shoes=db.query(models.Shoes).filter(models.Shoes.id==shoes_id.id).first()
     print(user_email.email)
     cart_all=db.query(models.Cart).filter(models.Cart.owner_email==user_email.email).all()
-    new_item=models.Cart(product_id=shoes.id,owner_email=user_email.email,owner_id=id,product_image=shoes.product_image,price=shoes.price,product_name=shoes.name, shoes_category=shoes.shoes_category)
+    new_item=models.Cart(product_id=shoes.id,size=shoes_id.size,product_quantity=shoes_id.product_quantity,owner_email=user_email.email,owner_id=id,product_image=shoes.product_image,price=shoes.price,product_name=shoes.name, shoes_category=shoes.shoes_category)
     shoes_stock=db.query(models.Shoes).filter(models.Shoes.id==shoes_id.id).first().shoes_stock
     try:
         if shoes_stock!=0:
