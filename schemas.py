@@ -108,8 +108,8 @@ class UserInfo(BaseModel):
     id:int
     user_name:str
     email:EmailStr
-    total_quantity:int
-    total_purchase:int
+    user_address:str
+    user_phone_no:str
     login_status:bool
     online_status:bool
     created_at:datetime
