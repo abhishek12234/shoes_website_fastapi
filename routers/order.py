@@ -73,9 +73,8 @@ async def add_order(order:schemas.OrderAdd,db: Session = Depends(get_db),current
    
    
     db.commit()
-    if str(origin)=="http://localhost:3001":
-        # Iterate over connected WebSocket clients and send a message
-        await admin_signal()
+    if str(origin)!="http://localhost:3000":
+            await admin_signal()
     
     
     return order_item
