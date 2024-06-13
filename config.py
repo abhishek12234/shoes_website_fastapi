@@ -1,17 +1,14 @@
 from pydantic_settings import BaseSettings
-from dotenv import load_dotenv
-load_dotenv()
+
+
 class Settings(BaseSettings):
-    database_hostname: str 
-    database_password: str
-    database_name:str
-    database_username:str
-    secret_key:str
-    algorithm:str
-    database_port:str
-    aws_secret_key:str
-    class Config:
-        env_file = ".env" 
-    
-settings=Settings()
-print(settings.database_hostname)
+    database_hostname: str = "localhost"
+    database_password: str = "0786"
+    database_name: str = "shoes_database"
+    database_username: str = "postgres"
+    secret_key: str = "0dca03efgds"
+    algorithm: str = "HS256"
+    database_port: str = "5432"
+    aws_secret_key: str = "EXLJLOOGZYHM5EeUNXjSWzzYJg0H7z6hpngX0uaa"
+
+settings = Settings()
