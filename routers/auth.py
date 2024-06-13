@@ -7,7 +7,8 @@ from connection import websocket_connections,websocket_connections_admin
 
 
 
-from jose import JWTError,jwt
+from config import settings
+import jwt
 user_dict={}
 websocket_connections_per_user: Dict[int, set] = {}
 router=APIRouter(tags=['Authentication'])

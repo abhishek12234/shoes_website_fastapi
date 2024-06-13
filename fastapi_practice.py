@@ -11,7 +11,7 @@ import schemas
 from typing import List, Set
 from routers import post,user,auth,order,cart
 import socketio
-from config import settings
+
 
 models.Base.metadata.create_all(bind=engine)
 

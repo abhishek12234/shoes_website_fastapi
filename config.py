@@ -1,5 +1,6 @@
 from pydantic_settings import BaseSettings
-
+from dotenv import load_dotenv
+load_dotenv()
 class Settings(BaseSettings):
     database_hostname: str 
     database_password: str
@@ -10,7 +11,7 @@ class Settings(BaseSettings):
     database_port:str
     aws_secret_key:str
     class Config:
-        env_file=".env"
+        env_file = ".env" 
     
 settings=Settings()
 print(settings.database_hostname)

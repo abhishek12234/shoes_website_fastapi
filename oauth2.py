@@ -1,4 +1,4 @@
-from jose import JWTError,jwt
+import jwt
 from datetime import datetime,timedelta
 import schemas,database,models
 from fastapi import Depends,status,HTTPException
