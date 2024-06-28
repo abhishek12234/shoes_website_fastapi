@@ -4,7 +4,7 @@ from sqlalchemy import update,select
 import database, schemas, models,utils,oauth2
 from typing import Dict
 from connection import websocket_connections,websocket_connections_admin
-
+from config import settings
 
 
 from config import settings
@@ -19,7 +19,7 @@ router=APIRouter(tags=['Authentication'])
 
 
 
-SECREAT_KEY = "0dca03efgds"
+
 ALGORITHM = "HS256"
 
 async def user_active(id:str,role:str,db:Session,active:bool):
@@ -77,7 +77,7 @@ async def websocket_endpoint(websocket: WebSocket,origin:str=Header(None),db: Se
            websocket_connections.add(websocket)
       data = await websocket.receive_text()
       token = data.strip()
-      payload=jwt.decode(token, SECREAT_KEY, algorithms=[ALGORITHM])
+      payload=jwt.decode(token, settings.secret_key, algorithms=[ALGORITHM])
       id,role=payload.get("user_id"),payload.get("role")
       if origin!="http://localhost:3000":
         if id not in websocket_connections_per_user:
